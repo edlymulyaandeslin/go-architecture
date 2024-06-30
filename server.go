@@ -18,6 +18,7 @@ type Server struct {
 	cS      service.CustomerService
 	pS      service.ProductService
 	uS      service.UserService
+	jS      service.JwtService
 	engine  *gin.Engine
 	portApp string
 }
@@ -26,6 +27,7 @@ func (s *Server) initiateRoute() {
 	routeGroup := s.engine.Group("/api/v1")
 	controller.NewBillController(s.bS, routeGroup).Route()
 	controller.NewProductController(s.pS, routeGroup).Route()
+	controller.NewUserController(s.uS, routeGroup).Route()
 }
 
 func (s *Server) Start() {
@@ -44,7 +46,7 @@ func NewServer() *Server {
 		log.Fatal(err)
 	}
 
-	portApp := cf.AppConfig.AppPort
+	portApp := cf.AppPort
 	if portApp == "" {
 		portApp = "8080"
 	}
@@ -54,8 +56,9 @@ func NewServer() *Server {
 	productRepo := repository.NewProductRepository(db)
 	userRepo := repository.NewUserRepository(db)
 
+	jwtService := service.NewJwtService(cf.SecurityConfig)
 	cusService := service.NewCustomerService(custRepo)
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(userRepo, jwtService)
 	productService := service.NewProductService(productRepo)
 	billService := service.NewBillService(billRepo, userService, productService, cusService)
 
@@ -64,6 +67,7 @@ func NewServer() *Server {
 		cS:      cusService,
 		pS:      productService,
 		uS:      userService,
+		jS:      jwtService,
 		engine:  gin.Default(),
 		portApp: portApp,
 	}

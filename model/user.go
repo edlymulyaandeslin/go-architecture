@@ -12,3 +12,7 @@ type User struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
+
+func (u *User) IsValidRole() bool {
+	return u.Role == "admin" || u.Role == "employee"
+}

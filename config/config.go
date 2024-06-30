@@ -4,6 +4,8 @@ import (
 	"errors"
 	"log"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -18,6 +20,9 @@ type DbConfig struct {
 }
 
 type SecurityConfig struct {
+	Key    string
+	Durasi time.Duration
+	Issuer string
 }
 type AppConfig struct {
 	AppPort string
@@ -35,6 +40,17 @@ func (c *Config) readConfig() error {
 		log.Fatal("Error loading .env file")
 	}
 
+	lifeTime, err := strconv.Atoi(os.Getenv("JWT_LIFE_TIME"))
+	if err != nil {
+		return err
+	}
+
+	c.SecurityConfig = SecurityConfig{
+		Key:    os.Getenv("JWT_KEY"),
+		Durasi: time.Duration(lifeTime),
+		Issuer: os.Getenv("JWT_ISSUER_NAME"),
+	}
+
 	c.DbConfig = DbConfig{
 		Driver:   os.Getenv("DB_DRIVER"),
 		Host:     os.Getenv("DB_HOST"),
@@ -48,7 +64,7 @@ func (c *Config) readConfig() error {
 		AppPort: os.Getenv("APP_PORT"),
 	}
 
-	if c.DbConfig.Driver == "" || c.DbConfig.Host == "" || c.DbConfig.Port == "" || c.DbConfig.DbName == "" || c.DbConfig.User == "" || c.DbConfig.Password == "" || c.AppConfig.AppPort == "" {
+	if c.DbConfig.Driver == "" || c.DbConfig.Host == "" || c.DbConfig.Port == "" || c.DbConfig.DbName == "" || c.DbConfig.User == "" || c.DbConfig.Password == "" || c.AppConfig.AppPort == "" || c.SecurityConfig.Key == "" || c.SecurityConfig.Durasi == 0 || c.SecurityConfig.Issuer == "" {
 		return errors.New("enviroment is empty")
 	}
 	return nil
