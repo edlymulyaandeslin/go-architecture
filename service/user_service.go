@@ -69,6 +69,7 @@ func (c *userService) Login(payload dto.LoginDto) (dto.LoginResponseDto, error) 
 		fmt.Println(user.Password, payload.Password)
 		return dto.LoginResponseDto{}, fmt.Errorf("password incorrect!")
 	}
+
 	user.Password = ""
 	token, err := c.jwt.GenerateToken(user)
 	if err != nil {
