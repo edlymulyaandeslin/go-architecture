@@ -12,7 +12,6 @@ import (
 // inteface
 type UserService interface {
 	FindById(id string) (model.User, error)
-	FindAll(page int, size int) ([]model.User, error)
 	CreateNew(payload model.User) (model.User, error)
 	FindByUsername(username string) (model.User, error)
 	Login(payload dto.LoginDto) (dto.LoginResponseDto, error)
@@ -32,9 +31,6 @@ func (c *userService) FindById(id string) (model.User, error) {
 	}
 
 	return user, nil
-}
-func (c *userService) FindAll(page int, size int) ([]model.User, error) {
-	panic("unimplement")
 }
 
 func (c *userService) CreateNew(payload model.User) (model.User, error) {

@@ -9,7 +9,6 @@ import (
 // inteface
 type CustomerService interface {
 	FindById(id string) (model.Customer, error)
-	FindAll(page int, size int) ([]model.Customer, error)
 }
 
 // struct
@@ -25,9 +24,6 @@ func (c *customerService) FindById(id string) (model.Customer, error) {
 	}
 
 	return customer, nil
-}
-func (c *customerService) FindAll(page int, size int) ([]model.Customer, error) {
-	panic("unimplement")
 }
 
 // constructor

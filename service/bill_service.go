@@ -56,5 +56,9 @@ func (b *billService) CreateNewBill(payload dto.BillRequest) (model.Bill, error)
 }
 
 func NewBillService(repo repository.BillRepository, us UserService, ps ProductService, cs CustomerService) BillService {
-	return &billService{repo: repo, userService: us, productService: ps, customerService: cs}
+	return &billService{
+		repo:            repo,
+		userService:     us,
+		productService:  ps,
+		customerService: cs}
 }

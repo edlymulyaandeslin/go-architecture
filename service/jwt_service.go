@@ -4,6 +4,7 @@ import (
 	"clean-code-app-laundry/config"
 	"clean-code-app-laundry/model"
 	"clean-code-app-laundry/model/dto"
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -33,11 +34,23 @@ func (j *jwtService) GenerateToken(payload model.User) (dto.LoginResponseDto, er
 	if err != nil {
 		return dto.LoginResponseDto{}, err
 	}
+
 	return dto.LoginResponseDto{Token: ss}, nil
 }
 
-func (j *jwtService) VerifyToken(token string) (jwt.MapClaims, error) {
-	panic("unimplemented")
+func (j *jwtService) VerifyToken(tokenStr string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (any, error) {
+		return []byte(j.config.Key), nil
+	})
+	if err != nil {
+		return nil, errors.New("Failed verify token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !token.Valid || !ok || claims["iss"] != j.config.Issuer {
+		return nil, errors.New("Invalid isser or claims token")
+	}
+	return claims, nil
 }
 
 func NewJwtService(cg config.SecurityConfig) JwtService {

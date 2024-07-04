@@ -4,7 +4,7 @@ import "time"
 
 type Bill struct {
 	Id          string       `json:"id"`
-	BillDate    string       `json:"billDate"`
+	BillDate    time.Time    `json:"billDate"`
 	Customer    Customer     `json:"customer"`
 	User        User         `json:"user"`
 	BillDetails []BillDetail `json:"billDetails"`

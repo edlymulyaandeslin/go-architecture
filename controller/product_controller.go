@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"clean-code-app-laundry/middleware"
 	"clean-code-app-laundry/service"
 	"clean-code-app-laundry/util"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 
 type ProductController struct {
 	service service.ProductService
+	aM      middleware.AuthMiddleware
 	rg      *gin.RouterGroup
 }
 
@@ -36,13 +38,14 @@ func (p *ProductController) getAllHandler(c *gin.Context) {
 }
 
 func (p *ProductController) Route() {
-	router := p.rg.Group("/products")
+	router := p.rg.Group("/products", p.aM.CheckToken("admin"))
 	router.GET("/", p.getAllHandler)
 }
 
-func NewProductController(service service.ProductService, rg *gin.RouterGroup) *ProductController {
+func NewProductController(service service.ProductService, rg *gin.RouterGroup, aM middleware.AuthMiddleware) *ProductController {
 	return &ProductController{
 		service: service,
 		rg:      rg,
+		aM:      aM,
 	}
 }

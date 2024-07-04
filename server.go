@@ -3,6 +3,7 @@ package main
 import (
 	"clean-code-app-laundry/config"
 	"clean-code-app-laundry/controller"
+	"clean-code-app-laundry/middleware"
 	"clean-code-app-laundry/repository"
 	"clean-code-app-laundry/service"
 	"database/sql"
@@ -19,18 +20,21 @@ type Server struct {
 	pS      service.ProductService
 	uS      service.UserService
 	jS      service.JwtService
+	aM      middleware.AuthMiddleware
 	engine  *gin.Engine
 	portApp string
 }
 
 func (s *Server) initiateRoute() {
 	routeGroup := s.engine.Group("/api/v1")
-	controller.NewBillController(s.bS, routeGroup).Route()
-	controller.NewProductController(s.pS, routeGroup).Route()
+	fmt.Println("eror disini")
+	controller.NewBillController(s.bS, routeGroup, s.aM).Route()
+	controller.NewProductController(s.pS, routeGroup, s.aM).Route()
 	controller.NewUserController(s.uS, routeGroup).Route()
 }
 
 func (s *Server) Start() {
+	fmt.Println("start eror disini")
 	s.initiateRoute()
 	s.engine.Run(s.portApp)
 }
@@ -62,12 +66,15 @@ func NewServer() *Server {
 	productService := service.NewProductService(productRepo)
 	billService := service.NewBillService(billRepo, userService, productService, cusService)
 
+	authMiddleware := middleware.NewAuthMiddleware(jwtService)
+
 	return &Server{
 		bS:      billService,
 		cS:      cusService,
 		pS:      productService,
 		uS:      userService,
 		jS:      jwtService,
+		aM:      authMiddleware,
 		engine:  gin.Default(),
 		portApp: portApp,
 	}
